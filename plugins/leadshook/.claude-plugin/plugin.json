@@ -1,0 +1,13 @@
+{
+  "name": "leadshook",
+  "description": "Create and refine LeadsHook decision trees and landing pages by chatting with Claude - build flows, design nodes, and assemble pages against your own LeadsHook account.",
+  "author": {
+    "name": "LeadsHook"
+  },
+  "mcpServers": {
+    "leadshook": {
+      "type": "http",
+      "url": "https://mcp.leadshook.app/mcp"
+    }
+  }
+}

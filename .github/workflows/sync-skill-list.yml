@@ -1,0 +1,28 @@
+name: sync-skill-list
+
+# Drift guard for the skill list advertised in prompt.md. The generator reads the
+# manifests and the skill directories in this checkout and fails if prompt.md
+# describes a different set of skills than the one that actually ships.
+#
+# Checkout plus one node command: no dependency install (the script has no
+# dependencies), no build, and no access to any private repository.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  sync-skill-list:
+    name: Advertised skill list matches what ships
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check the generated skill list is current
+        run: node scripts/gen-skill-list.mjs --check

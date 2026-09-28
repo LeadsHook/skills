@@ -1,0 +1,20 @@
+name: content-guard
+
+# Public-content guard. Greps hand-authored prose for internal references, per the
+# authoring contract in CONTRIBUTING.md section 3. Checkout plus grep only: no
+# dependency install, no build, and no access to any private repository.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  content-guard:
+    name: Forbidden internal references
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Scan authored content
+        run: bash scripts/content-guard.sh
