@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LeadsHook for AI agents</title>
+  <meta name="description" content="Connect your AI coding agent to LeadsHook: build, edit, and publish decision trees and landing pages from chat.">
+  <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #1a1a1a;
+      --muted: #5c5c5c;
+      --border: #e2e2e2;
+      --code-bg: #f5f5f5;
+      --link: #0b5fff;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111214;
+        --fg: #ececec;
+        --muted: #a3a3a3;
+        --border: #2c2d30;
+        --code-bg: #1c1d20;
+        --link: #6ea0ff;
+      }
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--fg);
+      font: 16px/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    }
+    main { max-width: 680px; margin: 0 auto; padding: 48px 16px 64px; }
+    h1 { font-size: 1.9rem; line-height: 1.25; margin: 0 0 12px; }
+    h2 { font-size: 1.15rem; margin: 36px 0 8px; }
+    p { margin: 0 0 12px; }
+    .lede { color: var(--muted); font-size: 1.05rem; }
+    a { color: var(--link); }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 16px;
+      overflow-x: auto;
+      font: 14px/1.5 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    }
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.92em; }
+    ul { padding-left: 20px; }
+    footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.9rem; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>LeadsHook for AI agents</h1>
+    <p class="lede">Build, edit, and publish LeadsHook decision trees and landing pages by chatting with your AI agent, connected to your own LeadsHook account.</p>
+
+    <h2>Claude Code</h2>
+    <p>Run these two commands inside Claude Code:</p>
+    <pre><code>/plugin marketplace add LeadsHook/skills
+/plugin install leadshook@leadshook</code></pre>
+    <p>Then restart Claude Code, or run <code>/reload-plugins</code>.</p>
+
+    <h2>Any other agent</h2>
+    <p>Point your agent at the setup instructions and let it follow them:</p>
+    <pre><code>Read https://leadshook.github.io/skills/prompt.md and follow it.</code></pre>
+    <p>The page covers Claude Code, Codex, Cursor, Copilot, and Windsurf, plus verification and troubleshooting.</p>
+
+    <h2>Links</h2>
+    <ul>
+      <li><a href="prompt.md">Agent setup instructions</a> (<code>prompt.md</code>)</li>
+      <li><a href="https://github.com/LeadsHook/skills">Source on GitHub</a></li>
+      <li><a href="https://leadshook.app">LeadsHook</a></li>
+    </ul>
+
+    <footer>The official LeadsHook plugin marketplace.</footer>
+  </main>
+</body>
+</html>
