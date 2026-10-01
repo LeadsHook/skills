@@ -47,10 +47,12 @@ plugin is active in your session.
 
 ### What you get
 
-The `leadshook` plugin (version 0.1.0) ships 2 skills:
+The `leadshook` plugin (version 0.2.0) ships 4 skills:
 
 - **build-decision-tree** - Build a LeadsHook quiz, survey, lead capture form or qualification funnel, or add a question or step to one you already have.
 - **build-landing-page** - Build, restyle, or extend a LeadsHook landing page.
+- **review-decision-tree** - Review or audit an existing LeadsHook decision tree, quiz or funnel and report what is wrong with it.
+- **style-decision-tree** - Change how a LeadsHook decision tree, quiz or form looks — colours, fonts, buttons, corner style, spacing — or make it match a brand, a website or a design system.
 
 [//]: # (END GENERATED SKILL LIST)
 

@@ -77,7 +77,24 @@ Before picking sections, settle three things. Ask if the request does not answer
    explanation than warm traffic from an email.
 3. **The offer** — what they get, and what it costs them (money, time, or their details).
 
-## Step 2 — Choose the sections
+## Step 2 — Match a brand
+
+Do this whenever the person gives you a brand colour, their website, or a design-system
+document, or asks for the page to "look like our brand". Skip it otherwise and keep the
+default theme.
+
+1. Read `references/brand-brief.md` and reduce what they gave you to its short brief.
+2. Write the brief back and get it confirmed before you design anything.
+3. Apply it through the page's `brand-*` theme, exactly as
+   `leadshook://references/page-builder-spec` describes. Never paste the brand hex into a
+   section.
+4. Settle the page's overall look from the brief — weight, surface, accent use, corners,
+   spacing — as `references/section-design.md` explains, and hold every section to it.
+
+If the page embeds a decision tree, use the same confirmed brief for the tree's design
+too, so the tree and the page around it match.
+
+## Step 3 — Choose the sections
 
 Map what the person described onto the bundled templates:
 
@@ -102,6 +119,10 @@ values the builder accepts. Take the `category` for each section from the spec r
 Read a template with a plain relative path from this skill's directory, for example
 `templates/hero-centered.html`.
 
+When you compose the sections, read `references/section-design.md`. It covers how each
+section should look — layout choice, hierarchy, where the brand colour goes and where it
+does not — and the rules that keep the sections consistent with each other.
+
 ### Sizing the page
 
 - **Warm traffic, one simple ask** — header, hero, one proof block, CTA, footer. Five
@@ -111,7 +132,7 @@ Read a template with a plain relative path from this skill's directory, for exam
 - Every section must do a job. If you cannot say what a section changes in the visitor's
   mind, cut it.
 
-## Step 3 — Order them
+## Step 4 — Order them
 
 Order is the part that converts. Start from the closest match:
 
@@ -139,7 +160,7 @@ The reasoning behind the ordering, so you can adapt it:
   closing CTA collects the people it just freed up.
 - **Close with one CTA.** Not two competing ones.
 
-## Step 4 — Write the copy
+## Step 5 — Write the copy
 
 The templates carry `{{PLACEHOLDER}}` tokens. Replace **every** one — a page that ships
 with a visible `{{HEADLINE}}` is a broken page. Replace them with the customer's real
@@ -159,7 +180,7 @@ words, not with lorem ipsum and not with a generic rewrite of the placeholder na
 - Keep it in the customer's voice and their market's vocabulary. Match the reading level
   of the audience, not of a brochure.
 
-## Step 5 — Images
+## Step 6 — Images
 
 Use `search_images` for hero art, avatars and logos, then put the returned URL into the
 template's image placeholder. Rules that matter:
@@ -173,7 +194,7 @@ template's image placeholder. Rules that matter:
 - To change an image on a page that is already live, `update_page_image` is the right
   tool — it leaves the rest of the sections untouched.
 
-## Step 6 — Check before you save
+## Step 7 — Check before you save
 
 Run through this every time:
 
@@ -188,17 +209,28 @@ Run through this every time:
       them.
 - [ ] The theme is driven by the `brand-*` system the spec resource describes, so the
       page follows the customer's palette instead of hardcoded colours.
+- [ ] Every section shares one corner style, one button style and one heading scale.
 
 Then save with `update_page_sections`.
 
-## Step 7 — Hand it back
+## Step 8 — Hand it back
 
 Tell the person, briefly:
 
 - which sections you used and why that order,
 - anything you left blank for them (links, real testimonials, prices),
+- anything from their brand the page could not carry, one line each,
 - one concrete next thing to try — usually the headline, which is what moves conversion
   most.
+
+## Reference files
+
+In `references/`, relative to this skill's directory. Read each when its step says to.
+
+| File | Read it when |
+| --- | --- |
+| `brand-brief.md` | The person gives a brand colour, website or design system (Step 2). |
+| `section-design.md` | You compose or restyle any section (Steps 2 and 3). |
 
 ## Bundled templates
 

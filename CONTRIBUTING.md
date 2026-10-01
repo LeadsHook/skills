@@ -61,7 +61,7 @@ Checks:
 | --- | --- |
 | `leadshook://references/dt-rendering` | How a decision tree renders to a visitor. |
 | `leadshook://references/page-builder-spec` | The page builder's rules: section JSON shape, valid categories, theme system, editor constraints. |
-| `dt-design-json-schema` | The schema for a decision tree's design payload. |
+| `leadshook://references/dt-design-json-schema` | The schema for a decision tree's design payload. |
 | `leadshook://schemas/node` | The node-type index. Generated from a directory listing at request time. |
 | `leadshook://schemas/node/{type}` | One node type's schema. A URI template — substitute the type. |
 
@@ -198,6 +198,7 @@ plugins/leadshook/
   skills/
     <skill-name>/
       SKILL.md           <- required
+      references/        <- optional longer guidance, read on demand
       templates/         <- optional bundled assets
 ```
 
@@ -219,6 +220,12 @@ Checks:
       not commands a customer types.
 - [ ] Bundled assets are self-contained: no internal path, no internal host, no
       placeholder a customer cannot resolve.
+- [ ] `SKILL.md` stays the entry point: it names each file in `references/` and says
+      when to read it. Detail lives in references, not in an ever-growing `SKILL.md`.
+- [ ] A reference several skills need is copied into each of them, and the copies are
+      **identical**. Skills cannot reliably read each other's files on every client.
+      `scripts/check-shared-references.sh` lists the shared files and fails if any copy
+      drifts — edit one, then copy it to the others.
 
 ---
 

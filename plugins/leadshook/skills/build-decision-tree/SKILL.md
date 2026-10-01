@@ -13,6 +13,18 @@ It is deliberately not about field names and JSON shapes. Those live in the MCP
 resources and are always current; anything written down here would go stale between
 plugin releases. Read the schema, then decide with the guidance below.
 
+### Reference files
+
+This file is the entry point. Read a reference only when you reach the moment it covers:
+
+- `references/node-selection.md` — when the right node type is not obvious, two types
+  both fit, or `generate_node` asks you to clarify. Decision path, keyword signals,
+  tie-breakers, what the visitor sees.
+- `references/node-patterns.md` — once the type is chosen, before you compose the node.
+  When each type is right or wrong, the settings decisions that matter, common mistakes.
+- `references/previews.md` — whenever you create, change or restyle a node, or the person
+  asks to see one. How to build and show a preview.
+
 ---
 
 ## 1. Get oriented before you build
@@ -106,7 +118,8 @@ tell, and a wrong node type is a wrong question for every visitor who reaches it
 
 Do this instead:
 
-1. Look at the candidates against the guidance in section 4.
+1. Look at the candidates against the guidance in section 4 and the tie-breakers in
+   `references/node-selection.md`.
 2. If the description genuinely decides it, call `generate_node` again with an explicit
    `nodeType`.
 3. If it does not — if the answer depends on something only the person knows, such as
@@ -274,7 +287,15 @@ Keep branching honest:
 
 ---
 
-## 8. Before you say you are done
+## 8. Show the person what you built
+
+After you compose or change a visible node, offer a preview of it — and when the person
+asks to see one, always show it. Follow `references/previews.md`: it is built from the
+rendering reference, it is a likeness rather than the live page, and you say so.
+
+---
+
+## 9. Before you say you are done
 
 - The tree opens with a low-effort question and asks for contact details late.
 - Every route reaches an end; no branch stops in mid-air.
@@ -283,6 +304,7 @@ Keep branching honest:
 - Every condition has a fallback.
 - Verification and consent were configured on their node, not bolted on as extra screens.
 - Every node's settings came from its schema resource, not from memory.
+- The person was offered a preview of the screens you created or changed.
 - You read the tree back with `get_decision_tree` or `export_decision_tree` and it is
   what you described.
 

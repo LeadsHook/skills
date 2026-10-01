@@ -31,7 +31,7 @@ before running the commands, and Claude Code will clone over HTTPS instead.
 ### The contract: a pinned version
 
 The plugin entry in this marketplace carries an explicit `version` field
-(currently `0.1.0`). That pin is the contract:
+(currently `0.2.0`). That pin is the contract:
 
 - **You receive an update only when we bump that number.** Nothing else changes
   what you have installed.

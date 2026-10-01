@@ -1,0 +1,22 @@
+name: shared-references
+
+# Drift guard for reference files that more than one skill carries. Each skill keeps
+# its own copy; this fails if the copies stop being identical.
+#
+# Checkout plus one bash command: no dependency install, no build, and no access to
+# any private repository.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  shared-references:
+    name: Shared skill references are identical
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Compare shared reference copies
+        run: bash scripts/check-shared-references.sh
