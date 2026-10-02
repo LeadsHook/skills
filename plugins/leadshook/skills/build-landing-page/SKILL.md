@@ -1,6 +1,8 @@
 ---
 name: build-landing-page
 description: Build, restyle, or extend a LeadsHook landing page. Use when someone asks for a landing page, a sales page, a lead capture page, an opt-in, webinar or thank-you page, a headline or hero rewritten, a new section such as pricing, testimonials or FAQ added to a page they already have, or a whole page rebuilt around a different offer. Covers choosing which sections the page needs, putting them in a persuasive order, writing the copy, picking imagery, and saving the result into the page editor.
+metadata:
+  version: "0.2.1"
 ---
 
 # Build a landing page

@@ -1,6 +1,8 @@
 ---
 name: build-decision-tree
 description: Build a LeadsHook quiz, survey, lead capture form or qualification funnel, or add a question or step to one you already have. Use this when someone wants to ask visitors a series of questions, choose the right question type for an answer, branch the flow based on what someone answers, score or qualify the people who answer, verify an email or phone number, or collect consent before a lead is captured.
+metadata:
+  version: "0.2.1"
 ---
 
 # Build a decision tree

@@ -1,6 +1,6 @@
 {
   "plugin": "leadshook",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "install": "Copy each skill verbatim: fetch path + file for every file listed, and save it as <skills directory>/<name>/<file>. Do not rewrite, summarise or merge skills.",
   "skills": [
     {

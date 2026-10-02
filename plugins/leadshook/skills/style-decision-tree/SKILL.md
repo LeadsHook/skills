@@ -1,6 +1,8 @@
 ---
 name: style-decision-tree
 description: Change how a LeadsHook decision tree, quiz or form looks — colours, fonts, buttons, corner style, spacing — or make it match a brand, a website or a design system. Use when someone wants a tree restyled, branded or themed, wants to see what a styled screen will look like, or wants a reusable design preset saved for a project.
+metadata:
+  version: "0.2.1"
 ---
 
 # Style a decision tree

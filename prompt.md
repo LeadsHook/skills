@@ -47,7 +47,7 @@ plugin is active in your session.
 
 ### What you get
 
-The `leadshook` plugin (version 0.2.0) ships 4 skills:
+The `leadshook` plugin (version 0.2.1) ships 4 skills:
 
 - **build-decision-tree** - Build a LeadsHook quiz, survey, lead capture form or qualification funnel, or add a question or step to one you already have.
 - **build-landing-page** - Build, restyle, or extend a LeadsHook landing page.
@@ -101,9 +101,98 @@ export CLAUDE_CODE_PLUGIN_PREFER_HTTPS=1
 
 With that variable set, the clone goes over HTTPS instead.
 
-## 3. Other clients: Codex, Cursor, Copilot, Windsurf
+## 3. Clients that install the plugin: Codex, Copilot CLI, Grok Build
 
-All four clients register the same endpoint: `https://mcp.leadshook.app/mcp`.
+These three clients install the same `leadshook` plugin as Claude Code, from
+the same marketplace. One install gives you the MCP server **and** the skills,
+and the client's own update command keeps both current. Use this section if
+you are one of them; it replaces sections 4 and 5 for you.
+
+**Do not register the MCP server yourself in these clients either.** The
+plugin declares it, exactly as in Claude Code, and section 2's warning applies
+word for word: a second registration is a duplicate, competing entry. Do not
+run `codex mcp add`, `copilot mcp add` or `grok mcp add` for LeadsHook.
+
+If the `plugin` command does not exist in the client you are running, it is an
+older release. Use section 4 for it instead, then section 5.
+
+### Codex
+
+```
+codex plugin marketplace add LeadsHook/skills
+codex plugin add leadshook@leadshook
+```
+
+Then sign in, which opens the browser for the single human login described in
+section 1:
+
+```
+codex mcp login leadshook
+```
+
+To update later:
+
+```
+codex plugin marketplace upgrade leadshook
+codex plugin add leadshook@leadshook
+```
+
+The first command refreshes the marketplace; the second reinstalls the plugin
+from it.
+
+### Copilot CLI
+
+This is the `copilot` command-line agent. Copilot in VS Code is a different
+client: it is in section 4.
+
+```
+copilot plugin marketplace add LeadsHook/skills
+copilot plugin install leadshook@leadshook
+```
+
+The browser sign-in happens when Copilot first connects to the server. If it
+asks for a client ID or a client secret instead, stop and report it, as the
+Cursor warning in section 4 says.
+
+To update later:
+
+```
+copilot plugin update leadshook@leadshook
+```
+
+### Grok Build
+
+This is the `grok` command-line agent. Grok in the browser and the Grok apps
+are a different client: they get the skills through section 5, Route B.
+
+```
+grok plugin marketplace add LeadsHook/skills
+grok plugin install leadshook@skills --trust
+```
+
+Note **`@skills`**, not `@leadshook`. Grok names a marketplace after its
+repository, so `leadshook@leadshook` fails with "Unknown marketplace". `--trust`
+answers Grok's trust prompt, which you cannot answer interactively; the person
+asking you to set up LeadsHook is the one who trusts it.
+
+`grok mcp doctor` lists the server under "plugin: leadshook". The browser
+sign-in happens on the first connection. If it asks for a client ID or a client
+secret instead, stop and report it.
+
+To update later:
+
+```
+grok plugin marketplace update
+grok plugin update leadshook
+```
+
+## 4. Other clients: Cursor, Copilot in VS Code, Windsurf, and the rest
+
+These clients do not install the plugin, so you register the MCP server here
+and then install the skills in section 5. Codex is here too, for releases older
+than its `plugin` command.
+
+All of them register the same endpoint: `https://mcp.leadshook.app/mcp`.
 
 **Read only your own client's subsection, and copy only from it.** These four
 clients use four incompatible config shapes: different file formats, different
@@ -112,7 +201,7 @@ as Claude Code. Copying one client's block into another client's config fails
 **silently** — the file still parses, the client still starts, and the server
 simply never appears. Do not pattern-match across these subsections.
 
-### Codex
+### Codex (older releases without `codex plugin`)
 
 Config file: `~/.codex/config.toml` for every project, or `.codex/config.toml`
 inside a project for that project only. This file is **TOML, not JSON**.
@@ -149,7 +238,7 @@ The official Codex documentation does not state a Windows config path. If you
 are on Windows, do not invent one — run the `codex mcp add` command above and let
 Codex write the file wherever it keeps it.
 
-Then install the skills: section 4.
+Then install the skills: section 5.
 
 ### Cursor
 
@@ -185,7 +274,7 @@ or from a Claude Code config into this file.
 > for one means something is wrong. Report exactly what Cursor asked for, and go
 > no further.
 
-Then install the skills: section 4.
+Then install the skills: section 5.
 
 ### Copilot (VS Code)
 
@@ -217,7 +306,7 @@ in section 1. It registers dynamically, so no one is asked for a client ID or a
 client secret. If a re-authentication is ever needed, VS Code shows an `Auth`
 CodeLens directly above the server entry in the config file.
 
-Then install the skills: section 4.
+Then install the skills: section 5.
 
 ### Windsurf (now Cognition "Devin Desktop")
 
@@ -250,23 +339,23 @@ never connects. No `type` field is documented for this client — do not add one
 > for one means something is wrong. Report exactly what Windsurf asked for, and
 > go no further.
 
-Then install the skills: section 4.
+Then install the skills: section 5.
 
 ### Any other client
 
-If your client is not one of the four above (Grok, Gemini CLI, or anything
-else), register `https://mcp.leadshook.app/mcp` as a remote MCP server using
+If your client is not one of the four above, nor in section 3 (Grok in the
+browser, Gemini CLI, or anything else), register `https://mcp.leadshook.app/mcp` as a remote MCP server using
 that client's own documented method, then sign in when the first tool call
 asks you to. Do not copy a config block from the subsections above: they are
 not your client's shape. If the client asks for a client ID or a client
 secret, stop and report it, exactly as the Cursor and Windsurf warnings say.
 
-Then install the skills: section 4.
+Then install the skills: section 5.
 
-## 4. Install the skills (every client except Claude Code)
+## 5. Install the skills (clients without the plugin)
 
-Claude Code gets the skills from the plugin. **Skip this section in Claude
-Code.** Every other client gets them here.
+Claude Code and the section 3 clients get the skills from the plugin. **Skip
+this section in those clients.** Every other client gets them here.
 
 The MCP server gives you the tools. The skills tell you how to use them well:
 which question type fits an answer, how to order a landing page, what a
@@ -302,9 +391,9 @@ memory, replace them with the verbatim copies now.
 
 ### Where to put them: pick the first route that fits
 
-**Route A — your client loads skill folders from disk.** Codex, Cursor,
-Copilot in VS Code, Windsurf (Devin Desktop), Gemini CLI and Grok Build all
-read the shared user-level skills directory:
+**Route A — your client loads skill folders from disk.** Cursor, Copilot in
+VS Code, Windsurf (Devin Desktop), Gemini CLI and older Codex releases all read
+the shared user-level skills directory:
 
 ```
 ~/.agents/skills/<name>/
@@ -340,7 +429,7 @@ Files this skill refers to are at https://leadshook.github.io/skills/<path> — 
 with `<path>` replaced by the entry's `path`.
 
 **Route C — your client has no skills at all.** Install nothing. The fallback
-line in the section 5 stanza tells you to read the index and fetch the
+line in the section 6 stanza tells you to read the index and fetch the
 matching skill whenever a LeadsHook task comes up. That works, but only if
 you can fetch web pages; if you cannot, say that the skills are unavailable in
 this client.
@@ -353,17 +442,32 @@ Do not report the setup as complete while skipping this section silently.
 
 ### Updating
 
-The skills change when LeadsHook releases a new version. To update, run this
-section again: fetch the index, and if its `version` differs from what you
-installed, overwrite the same skills with the new files. Delete files that are
-no longer listed, inside the LeadsHook skill folders only.
+Every `SKILL.md` records the release it came from, in its frontmatter:
 
-## 5. AGENTS.md stanza
+```yaml
+metadata:
+  version: "X.Y.Z"
+```
 
-Every client except Claude Code gets this stanza, whether or not the skills
-installed. It carries the minimum an agent cannot work out from the tool names,
-plus the fallback that Route C in section 4 relies on. It is not a port of the
-skills, and it must not grow into one.
+The index's `version` is the latest release. When they differ, the installed
+skills are out of date. Do not update on your own initiative: tell the person
+a newer LeadsHook release is available and update when they agree. To update,
+run this section again with the same route, overwriting the same skills with
+the new files, and delete files that are no longer listed, inside the LeadsHook
+skill folders only. A `SKILL.md` with no `metadata.version` predates the stamp
+and is out of date.
+
+Plugin installs update with the plugin instead: section 3 gives the command for
+each client, and Claude Code uses `/plugin marketplace update` then
+`/plugin update`.
+
+## 6. AGENTS.md stanza
+
+Every client that went through section 5 gets this stanza, whether or not the
+skills installed. Claude Code and the section 3 clients do not need it: the
+plugin's skills carry everything in it. It carries the minimum an agent cannot
+work out from the tool names, plus the fallback that Route C in section 5
+relies on. It is not a port of the skills, and it must not grow into one.
 
 **Append it to the customer's `AGENTS.md`. Never overwrite that file.** If an
 `AGENTS.md` already exists it holds the customer's own instructions, and
@@ -413,7 +517,7 @@ If no LeadsHook skill is installed, read
 fetch the `SKILL.md` of the skill whose description matches, and follow it.
 ```
 
-## 6. Verification
+## 7. Verification
 
 The connection is not proven until you have called a tool and seen real data come
 back. Do that now, yourself. It is two calls, in this order, and they are two
@@ -481,7 +585,7 @@ a call comes back saying an account must be selected, that is not an error and n
 something to route around: call `select_account` for the account you want, then retry
 the original call and carry on.
 
-## 7. Troubleshooting
+## 8. Troubleshooting
 
 ### A browser is required, and some environments do not have one
 
@@ -528,11 +632,11 @@ What to do with each:
 - **Authentication failure (`401`)** — this one really is about credentials. Sign in
   again.
 
-### The plugin's MCP server did not appear (Claude Code)
+### The plugin's MCP server did not appear (Claude Code and section 3 clients)
 
 You installed the plugin, but the LeadsHook tools are not listed in your session.
 
-**Do not register the server yourself.** Section 2 forbids it, and it is the wrong
+**Do not register the server yourself.** Sections 2 and 3 forbid it, and it is the wrong
 fix here for a concrete reason: adding it by hand creates a second, duplicate,
 competing entry for the same server, and you will then be untangling two
 half-working registrations instead of one missing one. Do not edit an MCP config
@@ -542,7 +646,7 @@ Work through this instead:
 
 1. Confirm the plugin actually installed. Check your installed plugins — if
    `leadshook` is not among them, the install did not complete, and the fix is to run
-   the two commands in section 2 again.
+   the install commands for your client (section 2 or 3) again.
 2. Reload it. Run `/reload-plugins`, or restart the client entirely. A plugin
    installed mid-session is very often simply not active yet.
 3. If it still does not appear, **report it rather than working around it.** Say what

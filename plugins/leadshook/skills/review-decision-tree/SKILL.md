@@ -1,6 +1,8 @@
 ---
 name: review-decision-tree
 description: Review or audit an existing LeadsHook decision tree, quiz or funnel and report what is wrong with it. Use when someone asks why a tree is not converting, wants a check before it goes live, or asks to find dead ends, missing fallbacks, confusing or redundant questions, too many steps, contact details asked too early, or inconsistent styling.
+metadata:
+  version: "0.2.1"
 ---
 
 # Review a decision tree

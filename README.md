@@ -31,7 +31,7 @@ before running the commands, and Claude Code will clone over HTTPS instead.
 ### The contract: a pinned version
 
 The plugin entry in this marketplace carries an explicit `version` field
-(currently `0.2.0`). That pin is the contract:
+(currently `0.2.1`). That pin is the contract:
 
 - **You receive an update only when we bump that number.** Nothing else changes
   what you have installed.
@@ -79,6 +79,9 @@ Claude Code.
 ### Rule for maintainers
 
 > **Bump `version` on the plugin entry for every single release.**
+> Then run `node scripts/gen-skill-list.mjs`: it stamps the new version into every
+> `SKILL.md` and `skills.json`, which is how installs outside the plugin tell they
+> are out of date. CI fails until you do.
 
 This is the failure mode the pinned contract creates, so it is the one rule that
 cannot slip. Merging a change without bumping `version` ships nothing: every

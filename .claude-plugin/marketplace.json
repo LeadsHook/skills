@@ -11,7 +11,7 @@
       "source": "./plugins/leadshook",
       "displayName": "LeadsHook",
       "description": "Build, edit, and publish LeadsHook decision trees and landing pages by chatting with Claude, connected to your own LeadsHook account.",
-      "version": "0.2.0",
+      "version": "0.2.1",
       "homepage": "https://leadshook.app",
       "repository": "https://github.com/LeadsHook/skills"
     }

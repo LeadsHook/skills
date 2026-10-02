@@ -15,6 +15,11 @@
 // file missing from that list is a file those agents never install, so the list
 // is generated from the directory, never written by hand.
 //
+// It also stamps the release version into every SKILL.md frontmatter, as
+// `metadata.version` (the Agent Skills spec's place for it). A copied skill
+// carries no other record of where it came from, so this is how an agent tells
+// an installed skill is older than the latest one and offers the update.
+//
 // What this is NOT: it is not a sync gate. It never fetches, never clones, and
 // never reads a path outside this repository. Manifests plus a directory listing,
 // nothing else.
@@ -29,8 +34,9 @@
 // listing IS the registry, so this script walks it.
 //
 // Usage:
-//   node scripts/gen-skill-list.mjs           rewrite the region and skills.json
-//   node scripts/gen-skill-list.mjs --check   exit non-zero if either is stale
+//   node scripts/gen-skill-list.mjs           rewrite the region, skills.json and
+//                                             the SKILL.md version stamps
+//   node scripts/gen-skill-list.mjs --check   exit non-zero if any of them is stale
 
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve, sep } from 'node:path';
@@ -137,6 +143,29 @@ function firstSentence(text) {
   return match ? match[1] : collapsed;
 }
 
+// Return the SKILL.md text with `metadata.version` set to the release version,
+// leaving every other line alone. Frontmatter is already validated by the
+// time this runs.
+function stampVersion(text, version) {
+  const lines = text.split('\n');
+  const closing = lines.indexOf('---', 1);
+  const front = lines.slice(1, closing);
+  const stamp = `  version: "${version}"`;
+
+  const metadata = front.findIndex((line) => /^metadata:\s*$/.test(line));
+  if (metadata === -1) {
+    front.push('metadata:', stamp);
+  } else {
+    let end = metadata + 1;
+    while (end < front.length && /^\s+\S/.test(front[end])) end += 1;
+    const existing = front.slice(metadata + 1, end).findIndex((line) => /^\s+version:/.test(line));
+    if (existing === -1) front.splice(end, 0, stamp);
+    else front[metadata + 1 + existing] = stamp;
+  }
+
+  return [lines[0], ...front, ...lines.slice(closing)].join('\n');
+}
+
 // Every file a skill ships, relative to its own directory, in a stable order.
 // Dotfiles are skipped: nothing a skill needs is hidden.
 function listSkillFiles(relativeDir) {
@@ -160,7 +189,7 @@ function listSkillFiles(relativeDir) {
 // ---------------------------------------------------------------------------
 // Discovery
 // ---------------------------------------------------------------------------
-function discoverSkills() {
+function discoverSkills(version) {
   const dir = repoPath(SKILLS_DIR);
   if (!existsSync(dir)) {
     fail(`the skills directory is missing: ${SKILLS_DIR}`);
@@ -178,7 +207,8 @@ function discoverSkills() {
       fail(`${SKILLS_DIR}/${directoryName} is not a skill: it has no SKILL.md`);
     }
 
-    const fields = parseFrontmatter(readRepoFile(relative, 'a skill'), relative);
+    const text = readRepoFile(relative, 'a skill');
+    const fields = parseFrontmatter(text, relative);
     if (!fields.name) {
       fail(`${relative} has no frontmatter "name"`);
     }
@@ -193,6 +223,9 @@ function discoverSkills() {
     }
 
     skills.push({
+      file: relative,
+      text,
+      stamped: stampVersion(text, version),
       name: fields.name,
       description: fields.description,
       summary: firstSentence(fields.description),
@@ -296,7 +329,7 @@ function locateRegion(promptText) {
 const checkOnly = process.argv.slice(2).includes('--check');
 
 const plugin = readPluginEntry();
-const skills = discoverSkills();
+const skills = discoverSkills(plugin.version);
 const expectedRegion = renderRegion(plugin, skills);
 const expectedIndex = renderIndex(plugin, skills);
 
@@ -307,12 +340,13 @@ const currentIndex = existsSync(repoPath(INDEX_FILE)) ? readRepoFile(INDEX_FILE,
 
 const regionFresh = currentRegion === expectedRegion;
 const indexFresh = currentIndex === expectedIndex;
+const unstamped = skills.filter((skill) => skill.text !== skill.stamped);
 const fileCount = skills.reduce((total, skill) => total + skill.files.length, 0);
 
-if (regionFresh && indexFresh) {
+if (regionFresh && indexFresh && unstamped.length === 0) {
   console.log(
     `gen-skill-list: OK - ${PROMPT_FILE} and ${INDEX_FILE} describe the ${skills.length} ` +
-      `skill(s) and ${fileCount} file(s) that ship.`,
+      `skill(s) and ${fileCount} file(s) that ship, each stamped ${plugin.version}.`,
   );
   process.exit(0);
 }
@@ -334,6 +368,11 @@ if (checkOnly) {
     );
     console.error('');
   }
+  for (const skill of unstamped) {
+    console.error(
+      `gen-skill-list: FAIL - ${skill.file} is not stamped metadata.version "${plugin.version}".`,
+    );
+  }
   console.error('Run: node scripts/gen-skill-list.mjs');
   process.exit(1);
 }
@@ -345,9 +384,16 @@ if (!regionFresh) {
 if (!indexFresh) {
   writeFileSync(repoPath(INDEX_FILE), expectedIndex, 'utf8');
 }
+for (const skill of unstamped) {
+  writeFileSync(repoPath(skill.file), skill.stamped, 'utf8');
+}
 console.log(
-  `gen-skill-list: updated ${[!regionFresh && PROMPT_FILE, !indexFresh && INDEX_FILE]
+  `gen-skill-list: updated ${[
+    !regionFresh && PROMPT_FILE,
+    !indexFresh && INDEX_FILE,
+    unstamped.length > 0 && `${unstamped.length} SKILL.md version stamp(s)`,
+  ]
     .filter(Boolean)
-    .join(' and ')} - ${skills.length} skill(s), ${fileCount} file(s): ` +
+    .join(', ')} - ${skills.length} skill(s), ${fileCount} file(s): ` +
     `${skills.map((skill) => skill.name).join(', ')}.`,
 );
