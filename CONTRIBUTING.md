@@ -222,6 +222,10 @@ Checks:
       placeholder a customer cannot resolve.
 - [ ] `SKILL.md` stays the entry point: it names each file in `references/` and says
       when to read it. Detail lives in references, not in an ever-growing `SKILL.md`.
+- [ ] After adding, renaming or removing a skill or any file inside one, run
+      `node scripts/gen-skill-list.mjs`. It regenerates the skill list in
+      `prompt.md` and `skills.json`, the index agents on other clients use to copy
+      every file of every skill. CI fails if either is stale.
 - [ ] A reference several skills need is copied into each of them, and the copies are
       **identical**. Skills cannot reliably read each other's files on every client.
       `scripts/check-shared-references.sh` lists the shared files and fails if any copy

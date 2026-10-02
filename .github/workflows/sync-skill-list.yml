@@ -1,8 +1,9 @@
 name: sync-skill-list
 
-# Drift guard for the skill list advertised in prompt.md. The generator reads the
-# manifests and the skill directories in this checkout and fails if prompt.md
-# describes a different set of skills than the one that actually ships.
+# Drift guard for the skill list advertised in prompt.md and for skills.json, the
+# install index other clients read. The generator reads the manifests and the
+# skill directories in this checkout and fails if either describes a different
+# set of skills or files than the one that actually ships.
 #
 # Checkout plus one node command: no dependency install (the script has no
 # dependencies), no build, and no access to any private repository.

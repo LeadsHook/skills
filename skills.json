@@ -1,0 +1,60 @@
+{
+  "plugin": "leadshook",
+  "version": "0.2.0",
+  "install": "Copy each skill verbatim: fetch path + file for every file listed, and save it as <skills directory>/<name>/<file>. Do not rewrite, summarise or merge skills.",
+  "skills": [
+    {
+      "name": "build-decision-tree",
+      "description": "Build a LeadsHook quiz, survey, lead capture form or qualification funnel, or add a question or step to one you already have. Use this when someone wants to ask visitors a series of questions, choose the right question type for an answer, branch the flow based on what someone answers, score or qualify the people who answer, verify an email or phone number, or collect consent before a lead is captured.",
+      "path": "plugins/leadshook/skills/build-decision-tree/",
+      "files": [
+        "SKILL.md",
+        "references/node-patterns.md",
+        "references/node-selection.md",
+        "references/previews.md"
+      ]
+    },
+    {
+      "name": "build-landing-page",
+      "description": "Build, restyle, or extend a LeadsHook landing page. Use when someone asks for a landing page, a sales page, a lead capture page, an opt-in, webinar or thank-you page, a headline or hero rewritten, a new section such as pricing, testimonials or FAQ added to a page they already have, or a whole page rebuilt around a different offer. Covers choosing which sections the page needs, putting them in a persuasive order, writing the copy, picking imagery, and saving the result into the page editor.",
+      "path": "plugins/leadshook/skills/build-landing-page/",
+      "files": [
+        "SKILL.md",
+        "references/brand-brief.md",
+        "references/section-design.md",
+        "templates/cta.html",
+        "templates/decision-tree-slot.html",
+        "templates/faq.html",
+        "templates/features.html",
+        "templates/footer.html",
+        "templates/header.html",
+        "templates/hero-centered.html",
+        "templates/hero-side-image.html",
+        "templates/logo-strip.html",
+        "templates/pricing.html",
+        "templates/social-proof.html",
+        "templates/testimonial.html"
+      ]
+    },
+    {
+      "name": "review-decision-tree",
+      "description": "Review or audit an existing LeadsHook decision tree, quiz or funnel and report what is wrong with it. Use when someone asks why a tree is not converting, wants a check before it goes live, or asks to find dead ends, missing fallbacks, confusing or redundant questions, too many steps, contact details asked too early, or inconsistent styling.",
+      "path": "plugins/leadshook/skills/review-decision-tree/",
+      "files": [
+        "SKILL.md",
+        "references/audit-checklist.md"
+      ]
+    },
+    {
+      "name": "style-decision-tree",
+      "description": "Change how a LeadsHook decision tree, quiz or form looks — colours, fonts, buttons, corner style, spacing — or make it match a brand, a website or a design system. Use when someone wants a tree restyled, branded or themed, wants to see what a styled screen will look like, or wants a reusable design preset saved for a project.",
+      "path": "plugins/leadshook/skills/style-decision-tree/",
+      "files": [
+        "SKILL.md",
+        "references/brand-brief.md",
+        "references/design-judgement.md",
+        "references/previews.md"
+      ]
+    }
+  ]
+}

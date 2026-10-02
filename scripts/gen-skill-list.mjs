@@ -1,12 +1,19 @@
 #!/usr/bin/env node
 //
-// gen-skill-list.mjs - keep the skill list advertised in prompt.md honest.
+// gen-skill-list.mjs - keep the skill list advertised in prompt.md honest, and
+// keep skills.json (the install index for clients without the plugin) in step.
 //
 // prompt.md tells an agent what the leadshook plugin gives it. That list is
 // advertising, and advertising drifts: a skill is added, renamed, or dropped and
 // the page still describes the old set. This script removes the opportunity. It
 // reads the manifests and the skill directories - the things that actually ship -
 // and rewrites one delimited region of prompt.md from them.
+//
+// The same walk writes skills.json at the repository root. Clients other than
+// Claude Code cannot install the plugin, so prompt.md tells their agents to read
+// skills.json from the published site and copy every listed file verbatim. A
+// file missing from that list is a file those agents never install, so the list
+// is generated from the directory, never written by hand.
 //
 // What this is NOT: it is not a sync gate. It never fetches, never clones, and
 // never reads a path outside this repository. Manifests plus a directory listing,
@@ -22,8 +29,8 @@
 // listing IS the registry, so this script walks it.
 //
 // Usage:
-//   node scripts/gen-skill-list.mjs           rewrite the region in place
-//   node scripts/gen-skill-list.mjs --check   exit non-zero if the region is stale
+//   node scripts/gen-skill-list.mjs           rewrite the region and skills.json
+//   node scripts/gen-skill-list.mjs --check   exit non-zero if either is stale
 
 import { existsSync, readdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve, sep } from 'node:path';
@@ -37,6 +44,7 @@ const MARKETPLACE_MANIFEST = '.claude-plugin/marketplace.json';
 const PLUGIN_MANIFEST = `${PLUGIN_DIR}/.claude-plugin/plugin.json`;
 const SKILLS_DIR = `${PLUGIN_DIR}/skills`;
 const PROMPT_FILE = 'prompt.md';
+const INDEX_FILE = 'skills.json';
 
 const BEGIN_SENTINEL = '[//]: # (BEGIN GENERATED SKILL LIST)';
 const END_SENTINEL = '[//]: # (END GENERATED SKILL LIST)';
@@ -129,6 +137,26 @@ function firstSentence(text) {
   return match ? match[1] : collapsed;
 }
 
+// Every file a skill ships, relative to its own directory, in a stable order.
+// Dotfiles are skipped: nothing a skill needs is hidden.
+function listSkillFiles(relativeDir) {
+  const files = [];
+  const walk = (subdir) => {
+    const entries = readdirSync(repoPath(`${relativeDir}${subdir}`), { withFileTypes: true });
+    for (const entry of entries) {
+      if (entry.name.startsWith('.')) continue;
+      const path = `${subdir}${entry.name}`;
+      if (entry.isDirectory()) walk(`${path}/`);
+      else if (entry.isFile()) files.push(path);
+    }
+  };
+  walk('');
+  // SKILL.md first, so an agent that stops early still has the entry point.
+  return files.sort((a, b) =>
+    a === 'SKILL.md' ? -1 : b === 'SKILL.md' ? 1 : a.localeCompare(b, 'en'),
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Discovery
 // ---------------------------------------------------------------------------
@@ -164,7 +192,13 @@ function discoverSkills() {
       );
     }
 
-    skills.push({ name: fields.name, summary: firstSentence(fields.description) });
+    skills.push({
+      name: fields.name,
+      description: fields.description,
+      summary: firstSentence(fields.description),
+      path: `${SKILLS_DIR}/${directoryName}/`,
+      files: listSkillFiles(`${SKILLS_DIR}/${directoryName}/`),
+    });
   }
 
   if (skills.length === 0) {
@@ -218,6 +252,26 @@ function renderRegion(plugin, skills) {
   ].join('\n');
 }
 
+// skills.json: what a non-Claude agent fetches to install the skills. Paths are
+// relative to the site root (the directory skills.json is served from), so the
+// file is correct wherever the site is hosted.
+function renderIndex(plugin, skills) {
+  const index = {
+    plugin: plugin.name,
+    version: plugin.version,
+    install:
+      'Copy each skill verbatim: fetch path + file for every file listed, and save it ' +
+      'as <skills directory>/<name>/<file>. Do not rewrite, summarise or merge skills.',
+    skills: skills.map((skill) => ({
+      name: skill.name,
+      description: skill.description,
+      path: skill.path,
+      files: skill.files,
+    })),
+  };
+  return `${JSON.stringify(index, null, 2)}\n`;
+}
+
 function locateRegion(promptText) {
   const lines = promptText.split('\n');
   const begin = lines.findIndex((line) => line.trim() === BEGIN_SENTINEL);
@@ -244,34 +298,56 @@ const checkOnly = process.argv.slice(2).includes('--check');
 const plugin = readPluginEntry();
 const skills = discoverSkills();
 const expectedRegion = renderRegion(plugin, skills);
+const expectedIndex = renderIndex(plugin, skills);
 
 const promptText = readRepoFile(PROMPT_FILE, 'the setup prompt');
 const { lines, begin, end } = locateRegion(promptText);
 const currentRegion = lines.slice(begin, end + 1).join('\n');
+const currentIndex = existsSync(repoPath(INDEX_FILE)) ? readRepoFile(INDEX_FILE, 'the skill index') : '';
 
-if (currentRegion === expectedRegion) {
+const regionFresh = currentRegion === expectedRegion;
+const indexFresh = currentIndex === expectedIndex;
+const fileCount = skills.reduce((total, skill) => total + skill.files.length, 0);
+
+if (regionFresh && indexFresh) {
   console.log(
-    `gen-skill-list: OK - ${PROMPT_FILE} advertises the ${skills.length} skill(s) that ship.`,
+    `gen-skill-list: OK - ${PROMPT_FILE} and ${INDEX_FILE} describe the ${skills.length} ` +
+      `skill(s) and ${fileCount} file(s) that ship.`,
   );
   process.exit(0);
 }
 
 if (checkOnly) {
-  console.error(`gen-skill-list: FAIL - the generated region in ${PROMPT_FILE} is out of date.`);
-  console.error('');
-  console.error('--- in prompt.md -------------------------------------------------');
-  console.error(currentRegion);
-  console.error('--- generated from the manifests and skill directories ------------');
-  console.error(expectedRegion);
-  console.error('-------------------------------------------------------------------');
-  console.error('');
+  if (!regionFresh) {
+    console.error(`gen-skill-list: FAIL - the generated region in ${PROMPT_FILE} is out of date.`);
+    console.error('');
+    console.error('--- in prompt.md -------------------------------------------------');
+    console.error(currentRegion);
+    console.error('--- generated from the manifests and skill directories ------------');
+    console.error(expectedRegion);
+    console.error('-------------------------------------------------------------------');
+    console.error('');
+  }
+  if (!indexFresh) {
+    console.error(
+      `gen-skill-list: FAIL - ${INDEX_FILE} does not list the skills and files that ship.`,
+    );
+    console.error('');
+  }
   console.error('Run: node scripts/gen-skill-list.mjs');
   process.exit(1);
 }
 
-const updated = [...lines.slice(0, begin), expectedRegion, ...lines.slice(end + 1)].join('\n');
-writeFileSync(repoPath(PROMPT_FILE), updated, 'utf8');
+if (!regionFresh) {
+  const updated = [...lines.slice(0, begin), expectedRegion, ...lines.slice(end + 1)].join('\n');
+  writeFileSync(repoPath(PROMPT_FILE), updated, 'utf8');
+}
+if (!indexFresh) {
+  writeFileSync(repoPath(INDEX_FILE), expectedIndex, 'utf8');
+}
 console.log(
-  `gen-skill-list: updated ${PROMPT_FILE} - now advertising ${skills.length} skill(s): ` +
+  `gen-skill-list: updated ${[!regionFresh && PROMPT_FILE, !indexFresh && INDEX_FILE]
+    .filter(Boolean)
+    .join(' and ')} - ${skills.length} skill(s), ${fileCount} file(s): ` +
     `${skills.map((skill) => skill.name).join(', ')}.`,
 );

@@ -149,9 +149,7 @@ The official Codex documentation does not state a Windows config path. If you
 are on Windows, do not invent one — run the `codex mcp add` command above and let
 Codex write the file wherever it keeps it.
 
-Codex gets the **MCP server only**. It does not get the LeadsHook skills: the
-plugin and skills mechanism is specific to Claude Code and cannot be installed
-here. The section 4 stanza is the partial substitute.
+Then install the skills: section 4.
 
 ### Cursor
 
@@ -187,9 +185,7 @@ or from a Claude Code config into this file.
 > for one means something is wrong. Report exactly what Cursor asked for, and go
 > no further.
 
-Cursor gets the **MCP server only**. It does not get the LeadsHook skills: the
-plugin and skills mechanism is specific to Claude Code and cannot be installed
-here. The section 4 stanza is the partial substitute.
+Then install the skills: section 4.
 
 ### Copilot (VS Code)
 
@@ -221,9 +217,7 @@ in section 1. It registers dynamically, so no one is asked for a client ID or a
 client secret. If a re-authentication is ever needed, VS Code shows an `Auth`
 CodeLens directly above the server entry in the config file.
 
-VS Code gets the **MCP server only**. It does not get the LeadsHook skills: the
-plugin and skills mechanism is specific to Claude Code and cannot be installed
-here. The section 4 stanza is the partial substitute.
+Then install the skills: section 4.
 
 ### Windsurf (now Cognition "Devin Desktop")
 
@@ -256,16 +250,120 @@ never connects. No `type` field is documented for this client — do not add one
 > for one means something is wrong. Report exactly what Windsurf asked for, and
 > go no further.
 
-Windsurf gets the **MCP server only**. It does not get the LeadsHook skills: the
-plugin and skills mechanism is specific to Claude Code and cannot be installed
-here. The section 4 stanza is the partial substitute.
+Then install the skills: section 4.
 
-## 4. AGENTS.md stanza
+### Any other client
 
-The four clients in section 3 have no skills mechanism, so they know nothing
-about LeadsHook beyond the bare tool names. This stanza carries the minimum they
-cannot work out for themselves. It is not a port of the skills, and it must not
-grow into one.
+If your client is not one of the four above (Grok, Gemini CLI, or anything
+else), register `https://mcp.leadshook.app/mcp` as a remote MCP server using
+that client's own documented method, then sign in when the first tool call
+asks you to. Do not copy a config block from the subsections above: they are
+not your client's shape. If the client asks for a client ID or a client
+secret, stop and report it, exactly as the Cursor and Windsurf warnings say.
+
+Then install the skills: section 4.
+
+## 4. Install the skills (every client except Claude Code)
+
+Claude Code gets the skills from the plugin. **Skip this section in Claude
+Code.** Every other client gets them here.
+
+The MCP server gives you the tools. The skills tell you how to use them well:
+which question type fits an answer, how to order a landing page, what a
+review should check. Without them you will build things that work and convert
+badly. Installing them is part of the setup, not an extra.
+
+### The index
+
+Every skill and every file it ships is listed in one index:
+
+```
+https://leadshook.github.io/skills/skills.json
+```
+
+Fetch it. For each entry in `skills`, the files to install are
+`https://leadshook.github.io/skills/` + `path` + each name in `files`. The
+index is generated from the skills that ship, so it is always complete. Do
+not guess file names, and do not skip a file because its name suggests you
+will not need it.
+
+### Copy them verbatim. Do not adapt them.
+
+Save every file byte for byte. Do not rewrite a skill for your client, do not
+summarise it, do not merge several into one, and do not "adapt it to your
+tools". The skills are written for any client already. They name tools by
+their bare MCP names (`whoami`, `add_node`); if your client shows those tools
+with a prefix, it is the same tool and the skill is still correct. An adapted
+copy stops matching what LeadsHook ships the moment it is saved, and nothing
+will ever tell the person it has drifted.
+
+If you created your own LeadsHook skills earlier, from this page or from
+memory, replace them with the verbatim copies now.
+
+### Where to put them: pick the first route that fits
+
+**Route A — your client loads skill folders from disk.** Codex, Cursor,
+Copilot in VS Code, Windsurf (Devin Desktop), Gemini CLI and Grok Build all
+read the shared user-level skills directory:
+
+```
+~/.agents/skills/<name>/
+```
+
+Write each file to `~/.agents/skills/<name>/<file>`, keeping its subfolders
+(`references/`, `templates/`). The skill reads those files by their relative
+path, so a flattened copy breaks it. Use the user-level directory, not a
+project one: the person will want LeadsHook in every project, not just this
+one.
+
+Before you write, check each `~/.agents/skills/<name>/` you are about to fill.
+If it exists and its `SKILL.md` is not a LeadsHook skill, it belongs to
+someone else: do not overwrite it, and report the clash.
+
+Most clients pick up new skills on the next session. If your client needs a
+reload or a restart to see them, say so.
+
+**Route B — your client saves skills through its own feature, not a folder.**
+Grok in the browser and the Grok apps work this way, and so may others. Save
+one skill per index entry, named exactly as `name`, with the full `SKILL.md`
+as its instructions and `description` as its description.
+
+If the feature accepts extra files, attach every other file under its own
+relative path. If it accepts only one body of text, add this one line
+directly after the closing `---` of the `SKILL.md` frontmatter, and change
+nothing else:
+
+```
+Files this skill refers to are at https://leadshook.github.io/skills/<path> — fetch them from there when the skill says to read one.
+```
+
+with `<path>` replaced by the entry's `path`.
+
+**Route C — your client has no skills at all.** Install nothing. The fallback
+line in the section 5 stanza tells you to read the index and fetch the
+matching skill whenever a LeadsHook task comes up. That works, but only if
+you can fetch web pages; if you cannot, say that the skills are unavailable in
+this client.
+
+### Report what you installed
+
+Name the skills you installed, the route, the location, and the `version`
+from the index. If you could not install them, say which route failed and why.
+Do not report the setup as complete while skipping this section silently.
+
+### Updating
+
+The skills change when LeadsHook releases a new version. To update, run this
+section again: fetch the index, and if its `version` differs from what you
+installed, overwrite the same skills with the new files. Delete files that are
+no longer listed, inside the LeadsHook skill folders only.
+
+## 5. AGENTS.md stanza
+
+Every client except Claude Code gets this stanza, whether or not the skills
+installed. It carries the minimum an agent cannot work out from the tool names,
+plus the fallback that Route C in section 4 relies on. It is not a port of the
+skills, and it must not grow into one.
 
 **Append it to the customer's `AGENTS.md`. Never overwrite that file.** If an
 `AGENTS.md` already exists it holds the customer's own instructions, and
@@ -309,9 +407,13 @@ a separate step, done in the LeadsHook canvas editor.
 
 `generate_node` may return `status: 'clarify'`. When it does, call it again with
 an explicit `nodeType` instead of guessing which type was meant.
+
+If no LeadsHook skill is installed, read
+`https://leadshook.github.io/skills/skills.json` before a LeadsHook task,
+fetch the `SKILL.md` of the skill whose description matches, and follow it.
 ```
 
-## 5. Verification
+## 6. Verification
 
 The connection is not proven until you have called a tool and seen real data come
 back. Do that now, yourself. It is two calls, in this order, and they are two
@@ -379,7 +481,7 @@ a call comes back saying an account must be selected, that is not an error and n
 something to route around: call `select_account` for the account you want, then retry
 the original call and carry on.
 
-## 6. Troubleshooting
+## 7. Troubleshooting
 
 ### A browser is required, and some environments do not have one
 
