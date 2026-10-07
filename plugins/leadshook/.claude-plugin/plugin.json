@@ -1,6 +1,6 @@
 {
   "name": "leadshook",
-  "description": "Create and refine LeadsHook decision trees and landing pages by chatting with Claude - build flows, design nodes, and assemble pages against your own LeadsHook account.",
+  "description": "Create and refine LeadsHook decision trees and landing pages by chatting with Claude - build flows, design nodes, and assemble pages against your own LeadsHook account, or move a funnel over from LeadsHook 2.",
   "author": {
     "name": "LeadsHook"
   },

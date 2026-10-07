@@ -52,8 +52,10 @@ Checks:
 - [ ] Every tool name uses **underscores**. A hyphenated variant is not an alias — it
       is a name that does not exist, and the agent's call fails at runtime.
 - [ ] No prose states a tool count that was not checked against this table.
-- [ ] A skill that calls an account-scoped tool first tells the agent to call
-      `select_account`. Account-scoped tools do not work before it.
+- [ ] A skill that calls an account-scoped tool tells the agent to pass `accountId`
+      on **every** call. The server remembers no account between calls, and
+      `select_account` only confirms access — no skill may say account-scoped tools
+      fail until it is called.
 
 #### 1.2 The five resources
 
@@ -248,6 +250,69 @@ Run through this before opening a pull request. It is the same list CI applies.
 - [ ] The only hosts named are `mcp.leadshook.app`, `agents.leadshook.app`,
       `leadshook.app`, and `github.com/LeadsHook/skills`.
 - [ ] `scripts/content-guard.sh` exits 0 on the whole tree.
+
+## Versioning and releases
+
+### The contract: a pinned version
+
+The plugin entry in this marketplace carries an explicit `version` field
+(see `.claude-plugin/marketplace.json`). That pin is the contract:
+
+- **You receive an update only when we bump that number.** Nothing else changes
+  what you have installed.
+- **Your install is stable and reproducible.** The version you installed is the
+  version you keep running until you deliberately update.
+- **Shipping to you is a deliberate act on our side.** A release is something we
+  decide and mark, not something that happens as a side effect of us saving a file.
+
+### The cost, stated plainly
+
+A pinned version has a real downside and we are not going to soften it: **if we
+forget to bump the version, product changes never reach you.** We can improve the
+plugin every day, and your installed copy will sit unchanged and stale for as long
+as the pin is not moved. A stale pin is silent — nothing warns you that you are
+behind.
+
+### The alternative we rejected
+
+The other option was **commit-SHA resolution**: leave `version` out entirely, and
+Claude Code falls back to the resolved commit SHA of this repository as the update
+signal. Every commit we make would then look like a new version to every customer.
+
+We **rejected** this. It is not deferred and not under review. With SHA resolution
+there is no gate between a commit and your machine: one bad commit would reach
+every customer immediately, and a broken plugin would be in the hands of people
+mid-campaign before we noticed. The pinned version buys us that gate, and we accept
+the staleness risk in exchange.
+
+### How to update
+
+Updating is two commands, and both are yours to run when you want them:
+
+```
+/plugin marketplace update
+/plugin update
+```
+
+- `/plugin marketplace update` refreshes the catalog, so Claude Code sees the
+  latest published version.
+- `/plugin update` updates the installed plugin to that version.
+
+`/reload-plugins` applies the change in your current session without restarting
+Claude Code.
+
+### Rule for maintainers
+
+> **Bump `version` on the plugin entry for every single release.**
+> Then run `node scripts/gen-skill-list.mjs`: it stamps the new version into every
+> `SKILL.md` and `skills.json`, which is how installs outside the plugin tell they
+> are out of date. CI fails until you do.
+
+This is the failure mode the pinned contract creates, so it is the one rule that
+cannot slip. Merging a change without bumping `version` ships nothing: every
+customer stays frozen on whatever they already have, and no amount of correct code
+in this repository reaches them. If the change is worth releasing, the version
+number moves with it — in the same change, not later.
 
 ---
 

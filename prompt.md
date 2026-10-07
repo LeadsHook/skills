@@ -47,10 +47,11 @@ plugin is active in your session.
 
 ### What you get
 
-The `leadshook` plugin (version 0.2.1) ships 4 skills:
+The `leadshook` plugin (version 0.3.0) ships 5 skills:
 
 - **build-decision-tree** - Build a LeadsHook quiz, survey, lead capture form or qualification funnel, or add a question or step to one you already have.
 - **build-landing-page** - Build, restyle, or extend a LeadsHook landing page.
+- **migrate-from-v2** - Move a decision tree, quiz or funnel from the old LeadsHook (LeadsHook 2) to the new LeadsHook.
 - **review-decision-tree** - Review or audit an existing LeadsHook decision tree, quiz or funnel and report what is wrong with it.
 - **style-decision-tree** - Change how a LeadsHook decision tree, quiz or form looks — colours, fonts, buttons, corner style, spacing — or make it match a brand, a website or a design system.
 
@@ -495,8 +496,8 @@ so each line you add costs the customer tokens for the life of the project.
 LeadsHook decision trees and landing pages are built through the `leadshook` MCP
 tools. Use those tools rather than editing files by hand.
 
-Orientation, in this order, before calling any account-scoped tool:
-`whoami`, then `list_accounts`, then `select_account`.
+Orientation: `whoami`, then `list_accounts`. The server remembers no account
+between calls, so pass `accountId` on every account-scoped call.
 
 Node schemas: the index is `leadshook://schemas/node`, each type is
 `leadshook://schemas/node/{type}`, and the fields shared by every type are
@@ -551,19 +552,20 @@ install broken:
 two steps into one, and do not skip it because `whoami` already succeeded —
 `whoami` cannot answer what this answers.
 
-It returns a **bare JSON array**. Each element is one account, carrying an
-identifier and a name:
+It returns an object with one property, `accounts`, holding the list. Each element
+is one account, carrying an identifier and a name:
 
 ```json
-[
-  { "id": "acct_1", "name": "Acme Marketing" },
-  { "id": "acct_2", "name": "Acme Partners" }
-]
+{
+  "accounts": [
+    { "id": 101, "name": "Acme Marketing" },
+    { "id": 102, "name": "Acme Partners" }
+  ]
+}
 ```
 
-The array **is** the response. It is not wrapped in an object, so there is no
-accounts property to reach through first. Index the top-level value directly: the
-first account is element zero.
+Read the list from `accounts`: the first account is `accounts[0]`. Each `id` is a
+number, and it is the `accountId` you pass to account-scoped tools.
 
 ### Step 3 — report the account name
 
@@ -578,12 +580,14 @@ can confirm or correct an account name at a glance, and cannot confirm anything 
 
 If more than one account came back, name the one you will be working in.
 
-### If a tool says an account must be selected
+### Pass the account on every call
 
-Some tools are account-scoped and refuse to run until an account has been chosen. If
-a call comes back saying an account must be selected, that is not an error and not
-something to route around: call `select_account` for the account you want, then retry
-the original call and carry on.
+The LeadsHook server remembers nothing between calls. There is no "current account"
+that stays set. Every account-scoped tool takes `accountId`, and it needs it on
+**every** call, including calls later in the same conversation. If a call is refused
+for a missing or wrong account, that is not something to route around: add the right
+`accountId` to that call and retry it. `select_account` only confirms you can reach an
+account; calling it does not set one for later calls.
 
 ## 8. Troubleshooting
 

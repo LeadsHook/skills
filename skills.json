@@ -1,11 +1,11 @@
 {
   "plugin": "leadshook",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "install": "Copy each skill verbatim: fetch path + file for every file listed, and save it as <skills directory>/<name>/<file>. Do not rewrite, summarise or merge skills.",
   "skills": [
     {
       "name": "build-decision-tree",
-      "description": "Build a LeadsHook quiz, survey, lead capture form or qualification funnel, or add a question or step to one you already have. Use this when someone wants to ask visitors a series of questions, choose the right question type for an answer, branch the flow based on what someone answers, score or qualify the people who answer, verify an email or phone number, or collect consent before a lead is captured.",
+      "description": "Build a LeadsHook quiz, survey, lead capture form or qualification funnel, or add a question or step to one you already have. Use this when someone wants to ask visitors a series of questions, choose the right question type for an answer, branch the flow based on what someone answers, score or qualify the people who answer, verify an email or phone number, or collect consent before a lead is captured. Also use it when someone wants a tree built from their idea, brief, plan or description (\"I want a quiz that qualifies roofing leads\", \"build the tree from my plan\"), or when a confirmed Vision Brief is handed over to be built. Moving a tree from the old LeadsHook (LeadsHook 2) or a v2 export starts in the migrate-from-v2 skill, not here.",
       "path": "plugins/leadshook/skills/build-decision-tree/",
       "files": [
         "SKILL.md",
@@ -34,6 +34,17 @@
         "templates/pricing.html",
         "templates/social-proof.html",
         "templates/testimonial.html"
+      ]
+    },
+    {
+      "name": "migrate-from-v2",
+      "description": "Move a decision tree, quiz or funnel from the old LeadsHook (LeadsHook 2) to the new LeadsHook. Use this when someone mentions their old LeadsHook tree, a v2 export, or LeadsHook 2, when they want to move, migrate or bring over a funnel or quiz to v3 or the new LeadsHook, or when they have a quiz.json or .zip file from LeadsHook and want it working in the new version. Covers reading the old export, working out what the tree was for, talking it through, and agreeing a plan for the new tree, then handing it over to be built as a draft once the person confirms it.",
+      "path": "plugins/leadshook/skills/migrate-from-v2/",
+      "files": [
+        "SKILL.md",
+        "references/does-not-carry-over.md",
+        "references/v2-design.md",
+        "references/v2-export.md"
       ]
     },
     {

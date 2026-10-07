@@ -2,7 +2,7 @@
 name: style-decision-tree
 description: Change how a LeadsHook decision tree, quiz or form looks — colours, fonts, buttons, corner style, spacing — or make it match a brand, a website or a design system. Use when someone wants a tree restyled, branded or themed, wants to see what a styled screen will look like, or wants a reusable design preset saved for a project.
 metadata:
-  version: "0.2.1"
+  version: "0.3.0"
 ---
 
 # Style a decision tree
@@ -33,28 +33,33 @@ separate job. Get the flow right first, then style it.
 
 ## 0. Get oriented
 
-Most tools here are scoped to one LeadsHook account, and they fail until an account is
-chosen. Run this once at the start of a session:
+The LeadsHook server remembers nothing between calls. There is no "current account" that
+stays set. Every account-scoped call needs the account passed to it, every time. Start a
+session like this:
 
 1. `whoami` — confirms who is connected. It returns `{ email }`. There is no `id` on it;
    do not look for one.
-2. `list_accounts` — returns a **bare JSON array** of `{ id, name }`. It is not wrapped in
-   an object, so read the array directly.
-3. `select_account` — pick the account. **Nothing account-scoped works before this.**
+2. `list_accounts` — returns `{ "accounts": [ { id, name }, … ] }`. Read the list from
+   its `accounts` property. If there is one account, use it. If there are several, show
+   the names and let the person choose.
+3. **Pass `accountId` on every account-scoped call** from here on, including calls you
+   make later in the same conversation. Never assume an earlier call set it for you.
 
 Then resolve the tree:
 
 - `list_decision_trees` — turn a tree the person named in words into an id. If several
   match, show them and let the person choose.
-- `get_decision_tree` — read the tree's nodes. You need to know which kinds of screen it
-  actually has (choice lists, text inputs, sliders, a closing page) so you style what is
-  there and preview the screens that matter.
+- `export_decision_tree` — read the tree's nodes. You need to know which kinds of screen
+  it actually has (choice lists, text inputs, sliders, a closing page) so you style what
+  is there and preview the screens that matter. (`get_decision_tree` returns the tree's
+  settings and styles, but not its nodes.)
 
 If the person wants a reusable preset rather than a design for one tree, you also need the
 project: `list_projects`, and let them choose if there is more than one.
 
-**If a tool answers that you must select an account first, that is not an error to work
-around.** Call `select_account` and retry.
+**If a call is refused for a missing or wrong account, that is not an error to work
+around.** Add the right `accountId` to that call and retry it. `select_account` only
+confirms you can reach an account; calling it does not set one for later calls.
 
 ---
 
@@ -243,6 +248,6 @@ apply to their trees from the project.
 
 - `export_decision_tree` — the tree including its current styles. Use it to preview the
   tree as it looks today, or to compare before and after.
-- `get_decision_tree` — the nodes, so you know which screens to style and preview.
+- `get_decision_tree` — the tree's settings and its current `styles`, but not its nodes.
 - Changing the questions, their order or the branching is the flow, not the design. Do
   that first, with the tree-building tools, then come back and style it.

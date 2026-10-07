@@ -2,7 +2,7 @@
 name: build-landing-page
 description: Build, restyle, or extend a LeadsHook landing page. Use when someone asks for a landing page, a sales page, a lead capture page, an opt-in, webinar or thank-you page, a headline or hero rewritten, a new section such as pricing, testimonials or FAQ added to a page they already have, or a whole page rebuilt around a different offer. Covers choosing which sections the page needs, putting them in a persuasive order, writing the copy, picking imagery, and saving the result into the page editor.
 metadata:
-  version: "0.2.1"
+  version: "0.3.0"
 ---
 
 # Build a landing page
@@ -31,16 +31,19 @@ output looks like.
 
 ## Orientation
 
-Account-scoped tools do nothing until an account is selected, so run this first:
+The LeadsHook server remembers nothing between calls. There is no "current account" that
+stays set. Every account-scoped call needs the account passed to it, every time. Run this
+first:
 
 1. `whoami` — confirms who is connected. It returns `{ email }`. That is the whole
    return; there is no id on it.
-2. `list_accounts` — returns a **bare JSON array** of `{ id, name }`. It is not wrapped
-   in an object, so index it directly.
-3. `select_account` — pick the account. If more than one came back and the request does
-   not say which, ask.
-4. `list_projects` — a page lives inside a project. Confirm which one before creating
-   anything.
+2. `list_accounts` — returns `{ "accounts": [ { id, name }, … ] }`. Read the list from
+   its `accounts` property. If there is one account, use it. If more than one came back
+   and the request does not say which, ask.
+3. **Pass `accountId` on every account-scoped call** from here on, including calls you
+   make later in the same conversation. Never assume an earlier call set it for you.
+4. `list_projects` — with the `accountId`. A page lives inside a project. Confirm which
+   one before creating anything.
 
 ## The tools
 
@@ -53,6 +56,7 @@ Account-scoped tools do nothing until an account is selected, so run this first:
 | `update_page_image` | Swap one image on a page without rewriting its sections. |
 | `search_images` | Find imagery for a hero, a testimonial avatar, or a logo strip. |
 | `delete_page` | Remove a page. Confirm with the person first — this is destructive. |
+| `update_decision_tree` | Link a finished page to its tree with `designId`, so the tree is served inside the page. |
 
 Each tool's exact parameters come from the tool definition your client already exposes.
 Read that definition; do not guess an argument name.
@@ -68,6 +72,32 @@ Read that definition; do not guess an argument name.
   Fetch what is there, change only the affected section, and send it back with
   `update_page_sections`. For an image on its own, `update_page_image` is smaller and
   safer.
+
+## When you're handed a decision tree
+
+Sometimes the page is for a tree that already exists, for example when `build-decision-tree`
+hands off with the tree's id and title, the account and project, the goal, the audience,
+the copy points and the look agreed for the tree.
+
+- **Don't re-ask what you were given.** The handoff answers Step 1: the goal is the one
+  action, the audience tells you how much proof to add, and the copy points are the offer.
+  Use the same account and project. Only ask about what's missing.
+- **Write from the copy points.** Build the headline, subtext and buttons from the offer
+  and wording in the handoff, and follow the Step 4 rules.
+- **Match the tree's look.** Use the agreed colours and tone for the page theme so the page
+  and the tree feel like one thing.
+- **Embed the tree with an `insert_dt` section that carries the tree's id as `dtId`.** That
+  is the only thing that puts the real tree on the page. With `build_page`, add a section
+  with `type` `insert_dt` and `dtId`. With `update_page_sections`, put `dtId` in that
+  section's `content`. `templates/decision-tree-slot.html` is only a visual marker: it has
+  no tree id, so it never shows the tree.
+- **Start from the "Capture leads with a decision tree" order** in Step 3, with the tree
+  right under the hero. With `build_page`, set the hero's `ctaUrl` to `#dt` so its button
+  scrolls to the tree instead of leaving the page.
+- **Link the page to the tree when it's saved.** Call `update_decision_tree` with the
+  tree's `dtId` and the page id (`pageId` from `build_page`, or the id from
+  `create_page`) as `designId`. Embedding the tree on the page isn't enough: without
+  this link, the tree's own link still shows the bare tree, not the page around it.
 
 ## Step 1 — Work out what the page is for
 
@@ -224,6 +254,8 @@ Tell the person, briefly:
 - anything from their brand the page could not carry, one line each,
 - one concrete next thing to try — usually the headline, which is what moves conversion
   most.
+- when the page wraps a tree: that it's linked, and the tree's preview link
+  (`previewUrl` from the tree's import) now shows the page around it.
 
 ## Reference files
 
@@ -251,7 +283,7 @@ self-contained section with `{{PLACEHOLDER}}` tokens to fill in.
 | `pricing.html` | Three plans with the middle one marked as most popular. |
 | `faq.html` | Four question-and-answer pairs in two columns. |
 | `cta.html` | A closing band: heading, one paragraph, two buttons. |
-| `decision-tree-slot.html` | Marks the spot on the page where the decision tree appears. |
+| `decision-tree-slot.html` | A visual marker for where the decision tree goes. It carries no tree id, so to show a real tree use an `insert_dt` section with its `dtId` instead. |
 | `footer.html` | Four link columns plus a copyright and legal row. |
 
 Notes on filling them in:

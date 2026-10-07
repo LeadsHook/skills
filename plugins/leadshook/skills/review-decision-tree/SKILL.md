@@ -2,7 +2,7 @@
 name: review-decision-tree
 description: Review or audit an existing LeadsHook decision tree, quiz or funnel and report what is wrong with it. Use when someone asks why a tree is not converting, wants a check before it goes live, or asks to find dead ends, missing fallbacks, confusing or redundant questions, too many steps, contact details asked too early, or inconsistent styling.
 metadata:
-  version: "0.2.1"
+  version: "0.3.0"
 ---
 
 # Review a decision tree
@@ -19,18 +19,22 @@ until the person has seen the report and said yes to a specific fix. See section
 
 ## 1. Get oriented
 
-Most tools here are scoped to one LeadsHook account, and they fail until one is chosen.
+The LeadsHook server remembers nothing between calls. There is no "current account" that
+stays set. Every account-scoped call needs the account passed to it, every time.
 
 1. `whoami` — confirms who is connected. It returns `{ email }` and nothing else.
-2. `list_accounts` — returns a **bare JSON array** of `{ id, name }`. Read the array
-   directly; it is not wrapped in an object.
-3. `select_account` — pick the account. **Nothing account-scoped works before this.**
+2. `list_accounts` — returns `{ "accounts": [ { id, name }, … ] }`. Read the list from
+   its `accounts` property. If there is one account, use it. If there are several, show
+   the names and let the person choose.
+3. **Pass `accountId` on every account-scoped call** from here on, including calls you
+   make later in the same conversation. Never assume an earlier call set it for you.
 4. `list_decision_trees` — resolve the tree the person named in words into an id. If
    more than one title is a plausible match, show them and ask which one. Reviewing the
    wrong tree wastes everyone's time and produces confident nonsense.
 
-If a tool answers that you must select an account first, call `select_account` and
-retry. It is not an error to work around.
+If a call is refused for a missing or wrong account, that is not an error to work
+around. Add the right `accountId` to that call and retry it. `select_account` only
+confirms you can reach an account; calling it does not set one for later calls.
 
 ---
 
@@ -39,8 +43,8 @@ retry. It is not an error to work around.
 - `export_decision_tree` — the full tree as JSON: every node, its settings, its
   connections and the tree's design. **Prefer this one for a review.** Most findings
   depend on the connections between nodes, and you cannot see a dead end from one node.
-- `get_decision_tree` — the tree's current nodes and structure. Fine when the person only
-  wants the flow checked and the export is not available.
+- `get_decision_tree` — the tree's settings and its design (`styles`), but not its
+  nodes. Use it for the design pass; it cannot replace the export for the flow.
 - `get_dt_design_context` with `dtId` — loads how the tree renders to a visitor, tailored
   to this tree's real nodes. Call it before the design pass. The same rendering detail is
   readable as the resource `leadshook://references/dt-rendering`.

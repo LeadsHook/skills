@@ -9,9 +9,8 @@
     {
       "name": "leadshook",
       "source": "./plugins/leadshook",
-      "displayName": "LeadsHook",
-      "description": "Build, edit, and publish LeadsHook decision trees and landing pages by chatting with Claude, connected to your own LeadsHook account.",
-      "version": "0.2.1",
+      "description": "Build, edit, and publish LeadsHook decision trees and landing pages by chatting with Claude, connected to your own LeadsHook account. You can also move a funnel over from LeadsHook 2 by sharing its export.",
+      "version": "0.3.0",
       "homepage": "https://leadshook.app",
       "repository": "https://github.com/LeadsHook/skills"
     }
